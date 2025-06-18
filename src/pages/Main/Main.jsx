@@ -1,14 +1,11 @@
 import styles from './styles.module.css'
-import NewsBanner from '../../components/NewsBanner/NewsBanner.jsx'
-import { getCategories, getNews } from '../../api/apiNews.js'
-import NewsList from '../../components/NewsList/NewsList.jsx'
-import Pagination from '../../components/Pagination/Pagination.jsx'
-import Categories from '../../components/Categories/Categories.jsx'
-import Search from '../../components/Search/Search.jsx'
+import { getNews } from '../../api/apiNews.js'
 import { useDebounce } from '../../helpers/hooks/useDebounce.js'
-import { PAGE_SIZE, TOTAL_PAGES } from '../../constants/constants.js'
+import { PAGE_SIZE } from '../../constants/constants.js'
 import { useFetch } from '../../helpers/hooks/useFetch.js'
 import { useFilters } from '../../helpers/hooks/useFilters.js'
+import LatestNews from '../../components/LatestNews/LatestNews.jsx'
+import NewsByFilters from '../../components/NewsByFilters/NewsByFilters.jsx'
 
 const Main = () => {
   const { filters, changeFilter } = useFilters({
@@ -25,51 +22,15 @@ const Main = () => {
     keywords: debouncedKeywords,
   })
 
-  const { data: dataCategories } = useFetch(getCategories)
-
-  const handleNextPage = () => {
-    if (filters.page_number < TOTAL_PAGES) {
-      changeFilter('page_number', filters.page_number + 1)
-    }
-  }
-
-  const handlePreviousPage = () => {
-    if (filters.page_number > 1) {
-      changeFilter('page_number', filters.page_number - 1)
-    }
-  }
-
-  const handlePageClick = (pageNumber) => {
-    changeFilter('page_number', pageNumber)
-  }
-
   return (
     <main className={styles.main}>
-      <Search keywords={filters.keywords}
-              setKeywords={(keywords) => changeFilter('keywords', keywords)}/>
+      <LatestNews isLoading={isLoading}
+                  banners={data && data.news.length > 0 && data.news}/>
 
-      {dataCategories  ? <Categories categories={dataCategories.categories}
-                                    selectedCategory={filters.category}
-                                    setSelectedCategory={(category) => changeFilter(
-                                      'category', category)}/>
-        : null}
-
-      <Pagination handlePreviousPage={handlePreviousPage}
-                  handleNextPage={handleNextPage}
-                  handlePageClick={handlePageClick}
-                  currentPage={filters.page_number}
-                  totalPages={TOTAL_PAGES}
-      />
-      <NewsBanner isLoading={isLoading}
-                  item={data && data.news.length > 0 && data.news[0]}/>
-
-      <NewsList isLoading={isLoading} news={data && data.news.length > 0 && data.news}/>
-
-      <Pagination handlePreviousPage={handlePreviousPage}
-                  handleNextPage={handleNextPage}
-                  handlePageClick={handlePageClick}
-                  currentPage={filters.page_number}
-                  totalPages={TOTAL_PAGES}
+      <NewsByFilters news={data && data.news.length > 0 && data.news}
+                     isLoading={isLoading}
+                     filters={filters}
+                     changeFilter={changeFilter}
       />
     </main>
   )
