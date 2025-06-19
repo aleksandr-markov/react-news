@@ -27,3 +27,7 @@
     background-size: cover;
     flex-shrink: 0;
 }
+
+.link {
+    color: #020202;
+}
